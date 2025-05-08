@@ -1,5 +1,9 @@
 package net.clush.search.service;
 
-public class SearchService {
+import net.clush.search.dto.SearchRequest;
+import net.clush.search.dto.SearchResponse;
 
+public interface SearchService {
+
+	SearchResponse SearchQuery (SearchRequest request);
 }
