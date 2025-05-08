@@ -7,3 +7,4 @@ public interface SearchService {
 
 	SearchResponse SearchQuery (SearchRequest request);
 }
+
