@@ -15,6 +15,14 @@ public class SearchQueryImpl implements SearchService {
 		
 		searchForm.setQuery(request.getQuery());
 		
+		String[] indeies = {};
+		String index = request.getIndex();
+		
+		if(index.equals("ALL")) {
+			
+		}
+		
+		
 		return null;
 	}
 

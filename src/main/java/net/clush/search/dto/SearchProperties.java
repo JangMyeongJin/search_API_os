@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SearchForm {
-	private String query;
+public class SearchProperties {
 	private String[] indexes;
 }
