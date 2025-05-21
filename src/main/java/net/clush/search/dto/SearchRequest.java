@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SearchRequest {
 	private String query;
-	private String index;
+	private String index = "ALL";
 }

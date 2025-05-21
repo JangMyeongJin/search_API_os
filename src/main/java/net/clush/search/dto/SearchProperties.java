@@ -1,12 +1,18 @@
 package net.clush.search.dto;
 
-import lombok.AllArgsConstructor;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class SearchProperties {
-	private String[] indexes;
+	private String indexes;
+    private HashMap<String, IndexConfig> indexConfigs;
+    
+    @Data
+    public static class IndexConfig {
+        private String searchField;
+        private String highlightField;
+        private String sort;
+    }
 }
