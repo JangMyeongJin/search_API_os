@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SearchForm {
 	private String query;
-	private String[] index;
+	private String[] indexes;
 }
