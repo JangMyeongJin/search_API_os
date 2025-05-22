@@ -32,6 +32,8 @@ public class SearchController {
 	
 	@GetMapping("/query")
     public ResponseEntity<ResponseDTO> search(@ModelAttribute RequestDTO requestDTO) {
+
+		log.info("Called [QuerySearch]");
 		
 		SearchFormDTO searchFormDTO = new SearchFormDTO();
 		PropertiesDTO propertiesDTO = propertiesUtil.getPropertiesDTO();

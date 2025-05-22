@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.clush.search.dto.ResponseDTO;
 import net.clush.search.dto.SearchFormDTO;
 import net.clush.search.opensearch.OpenSearch;
@@ -21,6 +24,8 @@ import net.clush.search.util.PropertiesUtil;
 @RequiredArgsConstructor 
 public class SearchQueryService extends SearchService {
 	private String SEARCHTYPE = "query";
+
+	private static final Logger log = LoggerFactory.getLogger(SearchQueryService.class);
 
 	public String getSearchType() {
 		return SEARCHTYPE;
@@ -55,8 +60,10 @@ public class SearchQueryService extends SearchService {
 			return new ResponseDTO("success", 200, results);
 			
 		} catch (IllegalArgumentException e) {
+			log.error("Invalid search parameters: {}", e.getMessage());
 			return new ResponseDTO("Invalid search parameters: " + e.getMessage(), 400, null);
 		} catch (Exception e) {
+			log.error("Internal server error: {}", e.getMessage(), e);
 			return new ResponseDTO("Internal server error: " + e.getMessage(), 500, null);
 		}
 	}
