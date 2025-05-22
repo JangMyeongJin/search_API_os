@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RequestDTO {
-	private String query;
+	private String query = "";
 	private String index = "ALL";
 }
