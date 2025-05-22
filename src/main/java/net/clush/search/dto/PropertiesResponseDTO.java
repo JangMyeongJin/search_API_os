@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LoadResponse {
+public class PropertiesResponseDTO {
     private String status;
     private String message;
     private int code;

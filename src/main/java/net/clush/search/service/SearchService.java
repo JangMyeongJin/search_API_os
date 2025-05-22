@@ -1,11 +1,24 @@
 package net.clush.search.service;
 
-import net.clush.search.dto.SearchRequest;
-import net.clush.search.dto.SearchResponse;
-import net.clush.search.util.PropertiesUtil;
+import net.clush.search.dto.SearchFormDTO;
 
-public interface SearchService {
+import org.springframework.beans.factory.annotation.Value;
 
-	SearchResponse SearchQuery (SearchRequest request);
+import net.clush.search.dto.ResponseDTO;
+
+public abstract class SearchService {
+	
+	@Value("${search.user}")
+	protected String SEARCHUSER;
+	
+	@Value("${search.password}")
+	protected String SEARCHPASSWORD;
+	
+	@Value("${search.url}")
+	protected String SEARCHURL;
+
+	public abstract ResponseDTO search (SearchFormDTO searchFormDTO);
+	
+	public abstract String getSearchType();
 }
 

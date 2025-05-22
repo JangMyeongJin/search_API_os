@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class SearchProperties {
+public class PropertiesDTO {
 	private String indexes;
     private HashMap<String, IndexConfig> indexConfigs;
     

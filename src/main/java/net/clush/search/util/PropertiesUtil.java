@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
-import net.clush.search.dto.SearchProperties;
+import net.clush.search.dto.PropertiesDTO;
 
 @Component
 public class PropertiesUtil {
@@ -23,20 +23,20 @@ public class PropertiesUtil {
 	@Value("${properties.file.name}")
 	private String fileName;
 	
-	private SearchProperties searchProperties;
+	private PropertiesDTO propertiesDTO;
 	
 	@PostConstruct
 	public void init() {
 		try {
-			searchProperties = load();
+			propertiesDTO = load();
 		} catch (Exception e) {
 			// 초기화 실패 시 빈 객체 생성
-			searchProperties = new SearchProperties();
+			propertiesDTO = new PropertiesDTO();
 			e.printStackTrace();
 		}
 	}
 	
-	public SearchProperties load() {
+	public PropertiesDTO load() {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			FileInputStream is = new FileInputStream(filePath + fileName);
@@ -44,21 +44,21 @@ public class PropertiesUtil {
 			JsonNode rootNode = mapper.readTree(is);
         	String indexes = rootNode.get("indexes").asText();
 
-			SearchProperties properties = new SearchProperties();
+        	PropertiesDTO properties = new PropertiesDTO();
 			properties.setIndexes(indexes);
 			
-			HashMap<String, SearchProperties.IndexConfig> indexConfigs = new HashMap<>();
+			HashMap<String, PropertiesDTO.IndexConfig> indexConfigs = new HashMap<>();
 			
-			if(indexes.indexOf(FileUtil.COMMA) > -1) {
-				String[] indexList = indexes.split(FileUtil.COMMA);
+			if(indexes.indexOf(StringUtil.COMMA) > -1) {
+				String[] indexList = indexes.split(StringUtil.COMMA);
 				
 				for(String index : indexList) {
-					SearchProperties.IndexConfig config = getIndexConfig(index, rootNode);
+					PropertiesDTO.IndexConfig config = getIndexConfig(index, rootNode);
 					indexConfigs.put(index, config);
 				}
 				
 			}else {
-				SearchProperties.IndexConfig config = getIndexConfig(indexes, rootNode);
+				PropertiesDTO.IndexConfig config = getIndexConfig(indexes, rootNode);
 				indexConfigs.put(indexes, config);
 			}
 			
@@ -70,10 +70,10 @@ public class PropertiesUtil {
 		}
 	}
 
-	public SearchProperties.IndexConfig getIndexConfig(String index, JsonNode rootNode) {
+	public PropertiesDTO.IndexConfig getIndexConfig(String index, JsonNode rootNode) {
 		JsonNode indexNode = rootNode.get(index);
 		if (indexNode != null) {
-			SearchProperties.IndexConfig config = new SearchProperties.IndexConfig();
+			PropertiesDTO.IndexConfig config = new PropertiesDTO.IndexConfig();
 			config.setSearchField(indexNode.get("searchField").asText());
 			config.setHighlightField(indexNode.get("highlightField").asText());
 			config.setSort(indexNode.get("sort").asText());
@@ -82,7 +82,7 @@ public class PropertiesUtil {
 		return null;
 	}
 
-	public SearchProperties getSearchProperties() {
-		return searchProperties;
+	public PropertiesDTO getPropertiesDTO() {
+		return propertiesDTO;
 	}
 }
