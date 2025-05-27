@@ -13,6 +13,7 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,20 +51,21 @@ public class OpenSearch {
 		this.searchIndexMap = new HashMap<>();
 	}
 	
+	// 검색 조건
 	private String QUERY;
 	private String[] INDEXES;
+	private String[] SEARCHFIELD;
+	private String[] HIGHLIGHTFIELD;
+	private int SIZE;
+	private int FROM;
 	
 	public void connection() {
 		CLIENT = new Client(USER, PASSWORD, URL).Connection();
 	}
 
-	public RestHighLevelClient getClient() {
-		return CLIENT;
-	}
-
 	public MultiSearchResponse search(SearchFormDTO searchFormDTO) {
-		QUERY = searchFormDTO.getQuery();
-		INDEXES = searchFormDTO.getIndexes();
+		
+		setSearchForm(searchFormDTO);
 		
 		for(int i=0; i<INDEXES.length; i++) {
 			SearchRequest searchRequest = searchRequest(INDEXES[i]);
@@ -92,7 +94,8 @@ public class OpenSearch {
 		if(QUERY.equals("")) {
 			searchQuery.must(QueryBuilders.matchAllQuery());
 		}else {
-			
+			QueryBuilder simpleQueryBuilder = Builder.getSimpleQueryStringBuilder(QUERY, SEARCHFIELD);
+			searchQuery.should(simpleQueryBuilder);
 			// nested Query 추가해야됨
 //			QueryBuilder simpleQueryBuilder = Builder.getSimpleQueryBuilder(QUERY, INDEXES);
 //			
@@ -103,6 +106,11 @@ public class OpenSearch {
 		
 		// 검색어 관련 queryBuilder는 boolQuery에 담은다음 query()로 넘기기
 		searchSourceBuilder.query(boolQuery);
+
+		if(HIGHLIGHTFIELD.length > 0) {
+			HighlightBuilder highlightBuilder = Builder.getHighlightBuilder(HIGHLIGHTFIELD);
+			searchSourceBuilder.highlighter(highlightBuilder);
+		}
 		
 		// SearchRequest 생성
 		SearchRequest searchRequest = new SearchRequest();
@@ -111,6 +119,15 @@ public class OpenSearch {
 		log.info("GET {}/_search {} ", searchRequest.indices()[0], searchRequest.source().toString());
 		
 		return searchRequest;
+	}
+	
+	private void setSearchForm(SearchFormDTO searchFormDTO) {
+		QUERY = searchFormDTO.getQuery();
+		INDEXES = searchFormDTO.getIndexes();
+		SEARCHFIELD= searchFormDTO.getSearchField();
+		HIGHLIGHTFIELD = searchFormDTO.getHighlightField();
+		SIZE = searchFormDTO.getSize();
+		FROM = (searchFormDTO.getPage() - 1) * SIZE;
 	}
 	
 	

@@ -8,6 +8,7 @@ import org.opensearch.action.search.MultiSearchResponse;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.client.RequestOptions;
+import org.opensearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +38,6 @@ public class SearchQueryService extends SearchService {
 			OpenSearch openSearch = new OpenSearch(SEARCHUSER, SEARCHPASSWORD, SEARCHURL);
 			openSearch.connection();
 			
-			List<Map<String, Object>> results = new ArrayList<>();
-			
 			MultiSearchResponse multiSearchResponse = openSearch.search(searchFormDTO);
 			
 			if (multiSearchResponse == null) {
@@ -46,12 +45,20 @@ public class SearchQueryService extends SearchService {
 			}
 			
 			MultiSearchResponse.Item[] responses = multiSearchResponse.getResponses();
+			
+			List<Map<String, Object>> results = new ArrayList<>();
 
 			for (MultiSearchResponse.Item response : responses) {
 				if (response.getResponse() != null) {
 					SearchResponse searchResponse = response.getResponse();
 					searchResponse.getHits().forEach(hit -> {
 						Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+						
+						Map<String, HighlightField> highlightMap = hit.getHighlightFields();
+						
+						System.out.println(sourceAsMap);
+						System.out.println(highlightMap);
+						
 						results.add(sourceAsMap);
 					});
 				}
