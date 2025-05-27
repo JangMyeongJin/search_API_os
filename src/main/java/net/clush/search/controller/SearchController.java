@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import net.clush.search.dto.PropertiesDTO;
 import net.clush.search.dto.RequestDTO;
@@ -19,8 +22,9 @@ import net.clush.search.util.PropertiesUtil;
 import net.clush.search.util.StringUtil;
 
 @RestController
-@RequestMapping("/search")
+@RequestMapping("/search") 
 @RequiredArgsConstructor
+@Tag(name = "Search API")
 public class SearchController {
 	
 	private static final Logger log = LoggerFactory.getLogger(SearchController.class);
@@ -31,22 +35,27 @@ public class SearchController {
 	private final PropertiesUtil propertiesUtil;
 	
 	@GetMapping("/query")
-    public ResponseEntity<ResponseDTO> search(@ModelAttribute RequestDTO requestDTO) {
+	@Operation(description = "검색어 기반으로 검색을 수행합니다.")
+    public ResponseEntity<ResponseDTO> search(
+            @ModelAttribute RequestDTO requestDTO) {
 
-		log.info("Called [QuerySearch]");
+		log.info("Called [QuerySearch] : {}", requestDTO);
 		
 		SearchFormDTO searchFormDTO = new SearchFormDTO();
 		PropertiesDTO propertiesDTO = propertiesUtil.getPropertiesDTO();
 		String[] indexes = {};
 		
-		if(propertiesDTO.getIndexes().indexOf(StringUtil.COMMA) > -1) {
-			indexes = propertiesDTO.getIndexes().split(StringUtil.COMMA);
-		}
-		
+		// query
 		String reqQuery = requestDTO.getQuery();
 		searchFormDTO.setQuery(reqQuery);
 		
+		// index
 		String reqIndex = requestDTO.getIndex(); 
+		if(propertiesDTO.getIndexes().indexOf(StringUtil.COMMA) > -1) {
+			indexes = propertiesDTO.getIndexes().split(StringUtil.COMMA);
+		}else {
+			indexes = new String[] {propertiesDTO.getIndexes()};
+		}
 		
 		if(reqIndex.equals("ALL")) {
 			searchFormDTO.setIndexes(indexes);
@@ -54,6 +63,29 @@ public class SearchController {
 			indexes = new String[] {reqIndex};
 			searchFormDTO.setIndexes(indexes);
 		}
+		
+		// page
+		int reqPage = requestDTO.getPage();
+		searchFormDTO.setPage(reqPage);
+		
+		// size
+		int reqSize = requestDTO.getSize();
+		searchFormDTO.setSize(reqSize);
+
+		for(String index : indexes) {
+			PropertiesDTO.IndexConfig indexConfig = propertiesDTO.getIndexConfigs().get(index);
+			
+			// searchField
+			String[] searchFieldList = indexConfig.getSearchField().split(StringUtil.COMMA);
+			searchFormDTO.setSearchField(searchFieldList);
+			
+			// highlightField
+			String[] highlightField = indexConfig.getHighlightField().split(StringUtil.COMMA);
+ 			 searchFormDTO.setHighlightField(highlightField);
+			// searchFormDTO.setSort(indexConfig.getSort().split(StringUtil.COMMA));
+		}
+		
+		log.info("searchFormDTO : ", searchFormDTO.getQuery());
 		
         return ResponseEntity.ok(searchServiceFactory.getSearchService("query").search(searchFormDTO));
     }
